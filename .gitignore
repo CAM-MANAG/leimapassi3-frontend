@@ -1,0 +1,17 @@
+# Node modules
+node_modules/
+build/
+npm-debug.log
+*.env
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.zip
+*.env
+
+package-lock.json
+
+
+
