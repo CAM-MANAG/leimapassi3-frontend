@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Form, Button} from 'semantic-ui-react';
+import {userPath, userLoginPath} from '../helpers/path'
 const fetch = require('node-fetch');
 
 function LoginForm (props) {
@@ -37,7 +38,6 @@ function LoginForm (props) {
       }
 		
 		  registerUser(user);
-      fetchUsers();
       console.log("Register")
 		}
 		else if (event.target.name === "login"){   
@@ -53,10 +53,6 @@ function LoginForm (props) {
       loginUser(user)
       console.log("login")
     }
-    else if (event.target.name === "users"){ 
-      fetchUsers();
-      console.log("users")
-		}
 	}
   
   const loginUser = async(user) => {
@@ -67,7 +63,7 @@ function LoginForm (props) {
       body: JSON.stringify(user)
     }
     
-    await fetch('http://localhost:3001/api/v1/userlogin', conf)
+    await fetch(userLoginPath, conf)
     .then(resp => resp.json())
     .then(function(resp) {
       if (resp.status !== 'success') {
@@ -82,14 +78,19 @@ function LoginForm (props) {
   }
 
   const registerUser = async(user) => {
+    let data = {};
+    data.first_name = user.firstName;
+    data.last_name = user.lastName;
+    data.email = user.email;
+    data.password = user.password;    
     const conf = { 
       method: 'POST', 
       //mode: 'cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
+      body: JSON.stringify(data)
     }
     
-    await fetch('http://localhost:3001/api/v1/user', conf)
+    await fetch(userPath, conf)
     .then(resp => resp.json())
     .then(function(resp) {
       if (resp.status !== 'success') {
@@ -99,13 +100,13 @@ function LoginForm (props) {
     })
   }
 
-  const fetchUsers = async() => {
-    const URL = 'http://localhost:3001/api/v1/users';
+  /*const fetchUsers = async() => {
+    const URL = usersPath;
     const response = await fetch(URL)
     const jsonData = await response.json();
     let users = []
     users = await jsonData.data;
-  }
+  }*/
   
   const { firstName, lastName, email, password } = userData;
   return (
