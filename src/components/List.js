@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {Button} from 'semantic-ui-react';
-import {copyBackToFront, copyFrontToBack} from '../helpers/copy'
+import {copyDataToUser, copyUserToData} from '../helpers/copy'
 import {userPath, usersPath} from '../helpers/path'
 const fetch = require('node-fetch');
 
 
 const List = () => {
   const [list, setList] = useState([]);
-  const [user, setUser] = useState([]);
+//  const [user, setUser] = useState([]);
   useEffect(() => {
     console.log('in useEffect')
     const fetchList = async () => {
@@ -36,7 +36,7 @@ const List = () => {
     console.log(jsonData)
   
     let data = await jsonData;
-    let user = copyBackToFront(data)
+    let user = await copyDataToUser(data)
     console.log(user);
     setUser(user)
     return jsonData;
@@ -64,7 +64,7 @@ const List = () => {
   const updateUser = async(id, user) => {
     console.log(id)
     console.log(user)
-    const data = copyFrontToBack(user)
+    const data = copyUserToData(user)
     console.log(data)
     const conf = { 
       method: 'PUT', 
@@ -100,7 +100,7 @@ const List = () => {
   const update = async (id) => {
     console.log(id)
     let data = await getUser(id)
-    let user = copyBackToFront(data)
+    let user = await copyDataToUser(data)
     console.log(user)
     user = {...user, 'firstName':'TTTTT'}
     console.log(user)
