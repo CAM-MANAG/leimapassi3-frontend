@@ -1,27 +1,43 @@
 import React, { useEffect, useState } from "react";
 import {Button} from 'semantic-ui-react';
-import {copyDataToUser, copyUserToData} from '../helpers/copy'
-import {userPath, usersPath} from '../helpers/path'
+import {copyDataToUser, copyUserToData, userPath, usersPath } from '../helpers'
 const fetch = require('node-fetch');
 
 
-const List = () => {
+const List = (props) => {
   const [list, setList] = useState([]);
-//  const [user, setUser] = useState([]);
+  const [user, setUser] = useState([]);
+
   useEffect(() => {
     console.log('in useEffect')
+    
     const fetchList = async () => {
-      const response = await fetch(usersPath);
+      let request = {
+        method:"GET",
+        mode:"cors",
+        headers:{ "Content-Type":"application/json",
+                  "token":props.loginData.token}
+      }
+      const response = await fetch(usersPath, request);
       const list = await response.json();
       setList(list.data);
     };
 
-    fetchList();
-    }, []);
+    if (props.loginData.isLogged) {
+      fetchList();
+    }
+    }, [props]);
+
     console.log(list)
 
   const fetchUsers = async() => {
-    const response = await fetch(usersPath)
+    let request = {
+      method:"GET",
+      mode:"cors",
+      headers:{ "Content-Type":"application/json",
+                "token":props.loginData.token}
+    }
+    const response = await fetch(usersPath,request)
     const jsonData = await response.json();
     let users = []
     users = await jsonData.data;
@@ -31,7 +47,13 @@ const List = () => {
 
   const getUser = async(id) => {
     const URL = userPath+id;
-    const response = await fetch(URL)
+    let request = {
+      method:"GET",
+      mode:"cors",
+      headers:{ "Content-Type":"application/json",
+                "token":props.loginData.token}
+    }
+    const response = await fetch(URL, request)
     const jsonData = await response.json();
     console.log(jsonData)
   
@@ -47,7 +69,8 @@ const List = () => {
       const conf = { 
       method: 'DELETE', 
       mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+                  "token":props.loginData.token},
     }
     const URL = userPath+id;
     
@@ -69,7 +92,8 @@ const List = () => {
     const conf = { 
       method: 'PUT', 
       mode: 'cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+                  "token":props.loginData.token },
       body: JSON.stringify(data)
     }
     console.log(data)
@@ -111,14 +135,14 @@ const List = () => {
   return (
     <div>
       <h3>List of users</h3>
-      <ul>
-        {list.map((item) => (
+      {props.loginData.isLogged && <ul>
+      {list.map((item) => (
           <li key={item.id}>{item.email} first name = {item.first_name} last name = {item.last_name}
             <Button id={item.id} onClick = {()=>del(item.id)}>Delete</Button>
             <Button id={item.id} onClick = {()=>update(item.id)}>Update</Button></li>
         ))}
-      </ul>
-      <Button name = "users" onClick = {click}>Get users</Button>
+      </ul>}
+      {props.loginData.isLogged && <Button name = "users" onClick = {click}>Get users</Button>}
     </div>
   );
 };

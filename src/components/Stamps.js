@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {Button, Table} from 'semantic-ui-react';
-import {copyDataToStamps, copyStampToData} from '../helpers/copy'
-import {stampPath, stampsPath, freeLunchPath, stampCardPath} from '../helpers/path'
+import {stampPath, stampsPath, freeLunchPath, stampCardPath, 
+        copyDataToStamps, copyStampToData} from '../helpers'
 import moment from 'moment';
 
 const fetch = require('node-fetch');
@@ -53,8 +53,6 @@ const Stamps = () => {
     setStamps(stamps)
   }
 
-  
-
   const getStamp = async(id) => {
     const URL = stampPath+id;
     const response = await fetch(URL)
@@ -67,16 +65,6 @@ const Stamps = () => {
     return jsonData;
   }
 
-  /*const searchStamps = async(userID) => {
-    const URL = stampPath +`?user_id=${userID}`;
-    console.log(URL)
-    const response = await fetch(URL)
-    const jsonData = await response.json();
-    console.log(jsonData)
-  
-    return jsonData.data;
-  }
-*/
   const deleteStamp = async(id) => {
     console.log(id)
       const conf = { 

@@ -1,17 +1,16 @@
 import React, {useState} from 'react';
 import {Form, Button} from 'semantic-ui-react';
-import {userPath, userLoginPath} from '../helpers/path'
+import {userPath, userLoginPath} from '../helpers'
 const fetch = require('node-fetch');
 
 function LoginForm (props) {
-    const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: ""
   });
- 
- 
+
   const updateUserData = event =>
     setUserData({
       ...userData,
@@ -53,6 +52,10 @@ function LoginForm (props) {
       loginUser(user)
       console.log("login")
     }
+    else if (event.target.name === "logout"){ 
+      logoutUser(user)
+      console.log("logout")
+    }
 	}
   
   const loginUser = async(user) => {
@@ -72,9 +75,25 @@ function LoginForm (props) {
       }
       else {
         console.log(resp)
+        const data = {
+          isLogged: true,
+          token: resp.data.token
+        }
+        console.log(data)
+        props.setLoginData(data);
+        props.saveToStorage(data);
         alert('Welcome back '+ user.email + '!')
       }
     })
+  }
+
+  const logoutUser = (user) => {
+    const data = {
+      isLogged: false,
+      token: ''
+    }
+    props.setLoginData(data);
+    props.saveToStorage(data);
   }
 
   const registerUser = async(user) => {
@@ -99,14 +118,6 @@ function LoginForm (props) {
       }
     })
   }
-
-  /*const fetchUsers = async() => {
-    const URL = usersPath;
-    const response = await fetch(URL)
-    const jsonData = await response.json();
-    let users = []
-    users = await jsonData.data;
-  }*/
   
   const { firstName, lastName, email, password } = userData;
   return (
@@ -145,6 +156,7 @@ function LoginForm (props) {
       </Form.Field>
       <Button name = "login" onClick = {click}>Login</Button>
       <Button name = "register" onClick = {click}>Register</Button>
+      <Button name = "logout" onClick = {click}>Logout</Button>
     </Form>
   )
 }
