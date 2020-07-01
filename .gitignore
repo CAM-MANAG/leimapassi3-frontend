@@ -11,7 +11,3 @@ npm-debug.log
 *.zip
 *.env
 
-package-lock.json
-
-
-

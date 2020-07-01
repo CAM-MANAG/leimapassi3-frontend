@@ -8,15 +8,18 @@ const fetch = require('node-fetch');
 
 const enjoyFreeLunch = -10;
 
-const Stamps = () => {
+const Stamps = (props) => {
   const [stamps, setStamps] = useState([]);
   const [stampCard, setStampCard]= useState([]);
 
   useEffect(() => {
-    console.log('in useEffect')
-    fetchStamps()
-    }, []);
-    console.log(stamps)
+    console.log('in Stamp useEffect');
+    console.log(props.loginData);
+    if (props.loginData.isLogged) {
+      fetchStamps()
+    }}, [props]);
+    
+  console.log(stamps)
 
   const createStamp = async(stampProvID, stampType) => {
     const stamp = {
@@ -48,9 +51,13 @@ const Stamps = () => {
     const response = await fetch(stampsPath)
     const jsonData = await response.json();
     const data = jsonData.data
-    let stamps = await copyDataToStamps(data)
-    console.log(stamps)
-    setStamps(stamps)
+//    console.log("1")
+//    console.log(data)
+    if (data !== undefined) {
+      let stamps = await copyDataToStamps(data)
+//      console.log(stamps)
+      setStamps(stamps)
+    }
   }
 
   const getStamp = async(id) => {
@@ -59,10 +66,15 @@ const Stamps = () => {
     const jsonData = await response.json();
     console.log(jsonData)
   
-    let data = jsonData;
-    let stamp = await copyDataToStamps(data)
-    console.log(stamp);
-    return jsonData;
+    let data = jsonData.data;
+    console.log("2")
+    console.log(data)
+    
+    if (data !== undefined) {
+      let stamp = await copyDataToStamps(data)
+      console.log(stamp);
+      return jsonData;
+    }
   }
 
   const deleteStamp = async(id) => {
@@ -128,26 +140,38 @@ const Stamps = () => {
   
   const update = async (id) => {
     console.log(id)
-    let data = await getStamp(id)
-    let stamp = await copyDataToStamps(data)
-    console.log(stamp)
-    //user = {...user, 'firstName':'TTTTT'}
-    //console.log(stamp)
-    updateStamp(id, stamp);
-    console.log("update")
-    fetchStamps();
-  }
+    let response = await getStamp(id)
+    const jsonData = await response.json();
+    console.log(jsonData)
+  
+    let data = jsonData.data;
+    console.log("3")
+    console.log(data)
+    
+    if (data !== undefined) {
+      let stamp = await copyDataToStamps(data)
+      console.log(stamp)
+      //user = {...user, 'firstName':'TTTTT'}
+      //console.log(stamp)
+      updateStamp(id, stamp);
+      console.log("update")
+      fetchStamps();
+    }
+  } 
 
   const fetchStampsForStampCard = async(userID) => {
     const URL = stampCardPath+userID;
     console.log(URL)
     const response = await fetch(URL)
-    console.log(response)
     const jsonData = await response.json();
     console.log(jsonData.data)
-    let stamps = await copyDataToStamps(jsonData.data)
-    console.log(stamps)
-    return jsonData.data
+    console.log("3")
+    console.log(jsonData.data)
+    if (jsonData.data !== undefined) {
+      let stamps = await copyDataToStamps(jsonData.data)
+      console.log(stamps)
+      return jsonData.data
+    }
   }
 
   const searchStampsForStampCard = async (userID) => {
@@ -236,6 +260,18 @@ const Stamps = () => {
       alert('Sorry, not enough stamps')
   }
 
+  const handleChange=(event, id) => {
+    console.log('handleChange')
+    stamps[id].stampProvID = event.target.value;
+    setStamps(stamps);
+    console.log(stamps)
+  }
+
+  onChange = (event) => {
+		let state = {};
+		state[event.target.name] = event.target.value;
+		this.setState(state);
+	}
   return (
     <div>
       <h3>Stamp card</h3>
@@ -266,7 +302,7 @@ const Stamps = () => {
         <Table.Body>
         {stamps.map((item) => (
           <Table.Row key = {item.id}>
-            <Table.Cell >{item.stampProvID}</Table.Cell>
+            <Table.Cell><input type ="text" name ="kuppila" onChange={()=>handleChange(item.id)} value ={item.stampProvID}/></Table.Cell>
             <Table.Cell>{moment(item.stampGivenTime).format('DD.MM.YY')}</Table.Cell>
             <Table.Cell>{moment(item.stampUseTime).format('DD.MM.YY')}</Table.Cell>
             <Table.Cell>{item.stampType}</Table.Cell>

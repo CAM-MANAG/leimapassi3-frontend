@@ -39,8 +39,8 @@ const copyDataToStamps = async(data) =>{
     stampItem.stampStatus = data[i].qr_status;
     tempStamps.push(stampItem)
   }
-  console.log('data:', data)
-  console.log('stamps:', tempStamps)
+  //console.log('data:', data)
+  //console.log('stamps:', tempStamps)
   
   return(tempStamps)
 }
@@ -54,8 +54,41 @@ const copyStampToData = async(stamp) =>{
   data.qr_del_ts = stamp.stampDelTime;
   data.qr_type = stamp.stampType;
   data.qr_status = stamp.stampStatus;
-  console.log('data:', data)
-  console.log('stamp:', stamp)
+  //console.log('data:', data)
+  //console.log('stamp:', stamp)
+  return(data)
+}
+
+const copyDataToStampCard = async(data) =>{
+  let stampItem ={}
+  let tempStamps = []
+  for (let i = 0; i<data.length; i++) {
+    stampItem = {};
+    stampItem.id = data[i].id;
+    stampItem.userID = data[i].user_id;
+    stampItem.stampProvID = data[i].stamp_pro_id;
+    stampItem.stampCount = data[i].stamp_count;
+    stampItem.stampCardCount = data[i].stampcard_count;
+    stampItem.neededStamps = data[i].needed_stamps;
+    stampItem.date = data[i].date;
+    tempStamps.push(stampItem)
+  }
+  //console.log('data:', data)
+  //console.log('stamps:', tempStamps)
+  
+  return(tempStamps)
+}
+
+const copyStampCardToData = async(stamp) =>{
+  let data ={}
+  data.user_id = stamp.userID;
+  data.stamp_pro_id = stamp.stampProvID;
+  data.stamp_count = stamp.stampCount;
+  data.stampcard_count = stamp.stampCardCount;
+  data.needed_stamps = stamp.neededStamps;
+  data.date = stamp.date;
+   //console.log('data:', data)
+  //console.log('stamp:', stamp)
   return(data)
 }
 
@@ -63,5 +96,7 @@ export {
   copyDataToUser,
   copyUserToData,
   copyDataToStamps,
-  copyStampToData
+  copyStampToData,
+  copyDataToStampCard,
+  copyStampCardToData
 }

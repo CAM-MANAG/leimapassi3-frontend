@@ -1,25 +1,19 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Form, Button} from 'semantic-ui-react';
-import {userPath, userLoginPath} from '../helpers'
+import {userPath, userLoginPath, tokenPath} from '../helpers'
 const fetch = require('node-fetch');
 
 function LoginForm (props) {
-  const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: ""
-  });
 
   const updateUserData = event =>
-    setUserData({
-      ...userData,
+    props.setUser({
+      ...props.userData,
       [event.target.name]: event.target.value
     });
  
   const click = (event) => {
     event.preventDefault()
-    const user = userData;
+    const user = props.userData;
     if (event.target.name === 'register') {
       if (user.password.length < 8) {
         alert("Password must be at least eight characters long");
@@ -53,7 +47,9 @@ function LoginForm (props) {
       console.log("login")
     }
     else if (event.target.name === "logout"){ 
-      logoutUser(user)
+      console.log(props.loginData.token)
+      const token = {token: props.loginData.token}
+      logoutUser(token)
       console.log("logout")
     }
 	}
@@ -66,14 +62,16 @@ function LoginForm (props) {
       body: JSON.stringify(user)
     }
     
+    console.log("in loginUser")
     await fetch(userLoginPath, conf)
     .then(resp => resp.json())
     .then(function(resp) {
+      console.log(resp)
       if (resp.status !== 'success') {
         console.log(resp.error)
         alert(resp.error)
       }
-      else {
+      else {  // login successful
         console.log(resp)
         const data = {
           isLogged: true,
@@ -82,18 +80,103 @@ function LoginForm (props) {
         console.log(data)
         props.setLoginData(data);
         props.saveToStorage(data);
+
+        const userData = {
+          "id": resp.data.id,
+          "email": user.email,
+          "password": user.password,
+          "firstname": resp.data.first_name,
+          "lastname": resp.data.last_name
+        }
+        console.log(userData)
+        props.setUser(userData);
         alert('Welcome back '+ user.email + '!')
+        console.log(user)
+        const token = {token: data.token}
+        addToken(token) 
       }
     })
   }
 
-  const logoutUser = (user) => {
+  const addToken = async(token) => {
+    console.log(token)
+    const conf = { 
+      method: 'POST', 
+      //mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(token)
+    }
+    //console.log(tokenPath)
+    //console.log(conf)
+    await fetch(tokenPath, conf)
+    .then(resp => resp.json())
+    .then(function(resp) {
+      console.log(resp)
+      if (resp.status !== 'success') {
+        console.log(resp.error)
+        alert(resp.error)
+      }
+      else {  // token added to logins
+        console.log(resp)
+      }
+    })
+  }
+
+ /* const addToken = async(token) => {
+    console.log(token)
+    const conf = { 
+      method: 'POST', 
+      //mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(token)
+    }
+    console.log(tokenPath)
+    console.log(conf)
+    await fetch(tokenPath, conf)
+    .then(resp => resp.json())
+    .then(function(resp) {
+      console.log(resp)
+      if (resp.status !== 'success') {
+        console.log(resp.error)
+        alert(resp.error)
+      }
+      else {  // token added to logins
+        console.log(resp)
+      }
+    })
+  }
+*/
+  const deleteToken = async(token) => {
+    console.log(token)
+    const conf = { 
+      method: 'DELETE', 
+      //mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(token)
+    }
+    console.log(tokenPath)
+    console.log(conf)
+    await fetch(tokenPath, conf)
+    .then(resp => resp.json())
+    .then(function(resp) {
+      if (resp.status !== 'success') {
+        console.log(resp.error)
+        alert(resp.error)
+      }
+      
+    })
+  }
+
+  const logoutUser = (token) => {
+    console.log(token)
+    deleteToken(token)
     const data = {
       isLogged: false,
       token: ''
     }
     props.setLoginData(data);
     props.saveToStorage(data);
+    
   }
 
   const registerUser = async(user) => {
@@ -116,10 +199,16 @@ function LoginForm (props) {
         console.log(resp.error)
         alert(resp.error)
       }
+      else {
+        console.log(resp)
+        props.setUser({
+          ...user, 
+          "id":resp.data.id})
+      }
     })
   }
   
-  const { firstName, lastName, email, password } = userData;
+  const { firstName, lastName, email, password } = props.userData;
   return (
     <Form>
       <Form.Field>

@@ -6,11 +6,9 @@ const fetch = require('node-fetch');
 
 const List = (props) => {
   const [list, setList] = useState([]);
-  const [user, setUser] = useState([]);
+  
 
   useEffect(() => {
-    console.log('in useEffect')
-    
     const fetchList = async () => {
       let request = {
         method:"GET",
@@ -20,15 +18,17 @@ const List = (props) => {
       }
       const response = await fetch(usersPath, request);
       const list = await response.json();
+      console.log(list.data)
       setList(list.data);
     };
 
+    console.log(props.loginData.isLogged)
     if (props.loginData.isLogged) {
       fetchList();
     }
     }, [props]);
 
-    console.log(list)
+  console.log(list)
 
   const fetchUsers = async() => {
     let request = {
@@ -39,8 +39,7 @@ const List = (props) => {
     }
     const response = await fetch(usersPath,request)
     const jsonData = await response.json();
-    let users = []
-    users = await jsonData.data;
+    const users = await jsonData.data;
     console.log(users);
     setList(users)
   }
@@ -60,7 +59,7 @@ const List = (props) => {
     let data = await jsonData;
     let user = await copyDataToUser(data)
     console.log(user);
-    setUser(user)
+    props.setUser(user)
     return jsonData;
   }
 
@@ -87,7 +86,7 @@ const List = (props) => {
   const updateUser = async(id, user) => {
     console.log(id)
     console.log(user)
-    const data = copyUserToData(user)
+    const data = await copyUserToData(user)
     console.log(data)
     const conf = { 
       method: 'PUT', 
@@ -99,14 +98,13 @@ const List = (props) => {
     console.log(data)
     const URL = userPath+id;
     console.log(URL)
-    await fetch(URL, conf)
-    .then(resp => resp.json())
-    .then(function(resp) {
-      if (resp.status !== 'success') {
-        console.log(resp.error)
-        alert(resp.error)
-      }
-    })
+    const response = await fetch(URL, conf)
+    const resp = await response.json();
+    console.log(resp)
+    if (resp.status !== 'success') {
+      console.log(resp.error)
+      alert(resp.error)
+  }
   }
 
   const click = (event) => {
@@ -124,6 +122,7 @@ const List = (props) => {
   const update = async (id) => {
     console.log(id)
     let data = await getUser(id)
+    console.log(data)
     let user = await copyDataToUser(data)
     console.log(user)
     user = {...user, 'firstName':'TTTTT'}
@@ -135,7 +134,7 @@ const List = (props) => {
   return (
     <div>
       <h3>List of users</h3>
-      {props.loginData.isLogged && <ul>
+      {props.loginData.isLogged && list && <ul>
       {list.map((item) => (
           <li key={item.id}>{item.email} first name = {item.first_name} last name = {item.last_name}
             <Button id={item.id} onClick = {()=>del(item.id)}>Delete</Button>
